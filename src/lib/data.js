@@ -1,12 +1,12 @@
 export const occasionsList = [
-  { id: 'birthday', name: 'Birthday', img: 'assets/products/birthday.svg' },
-  { id: 'anniversary', name: 'Anniversary', img: 'assets/products/anniversary.svg' },
-  { id: 'romantic', name: 'Romantic Surprise', img: 'assets/products/romantic.svg' },
-  { id: 'get-well', name: 'Get Well Soon', img: 'assets/products/get_well.svg' },
-  { id: 'congrats', name: 'Congratulations', img: 'assets/products/congrats.svg' },
-  { id: 'new-baby', name: 'New Baby', img: 'assets/products/new_baby.svg' },
-  { id: 'thank-you', name: 'Thank You', img: 'assets/products/thank_you.svg' },
-  { id: 'elegant-white', name: 'Elegant White Collection', img: 'assets/products/elegant_white.svg' }
+  { id: 'birthday', name: 'Birthday', img: 'assets/products/birthday.png' },
+  { id: 'anniversary', name: 'Anniversary', img: 'assets/products/anniversary.png' },
+  { id: 'romantic', name: 'Romantic Surprise', img: 'assets/products/romantic.png' },
+  { id: 'get-well', name: 'Get Well Soon', img: 'assets/products/get_well.png' },
+  { id: 'congrats', name: 'Congratulations', img: 'assets/products/congrats.png' },
+  { id: 'new-baby', name: 'New Baby', img: 'assets/products/new_baby.png' },
+  { id: 'thank-you', name: 'Thank You', img: 'assets/products/thank_you.png' },
+  { id: 'elegant-white', name: 'Elegant White Collection', img: 'assets/products/elegant_white.png' }
 ];
 
 export const bouquetsList = [
