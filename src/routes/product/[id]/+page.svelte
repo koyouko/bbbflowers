@@ -21,6 +21,53 @@
 
   let activeThumbIdx = 0;
 
+  // Resolve dynamic preview image based on user configuration selection
+  $: displayImg = (() => {
+    if (!product) return '';
+    
+    // Red Moon options mapping
+    if (product.id === 'red-moon') {
+      if (selectedShape === 'Heart') return 'assets/products/red_moon_heart.png';
+      if (selectedShape === 'Basket') return 'assets/products/red_moon_basket.png';
+      if (selectedShape === 'Vase') return 'assets/products/red_moon_vase.png';
+      if (selectedShape === 'Hat Box') return 'assets/products/red_moon_hatbox.png';
+      
+      // Bouquet wrapper colors
+      if (selectedWrapping === 'Black') return 'assets/products/red_moon_bouquet_black.png';
+      if (selectedWrapping === 'Red') return 'assets/products/red_moon_bouquet_red.png';
+      if (selectedWrapping === 'Pink') return 'assets/products/red_moon_bouquet_pink.png';
+      if (selectedWrapping === 'White') return 'assets/products/red_moon_bouquet_white.png';
+      if (selectedWrapping === 'Gold') return 'assets/products/red_moon_bouquet_gold.png';
+    }
+
+    // Pink Romance options mapping
+    if (product.id === 'pink-romance' || product.id === 'luxury-pink-box') {
+      if (selectedShape === 'Hat Box') return 'assets/products/luxury_pink_box.png';
+      if (selectedShape === 'Heart') return 'assets/products/red_moon_heart.png'; // fallback
+      if (selectedShape === 'Basket') return 'assets/products/garden_delight.png'; // pink-ish mixed
+      if (selectedShape === 'Vase') return 'assets/products/blushing_beauty.png'; // pink roses in vase
+      return 'assets/products/pink_romance.png';
+    }
+
+    // Heart of Love options mapping
+    if (product.id === 'heart-of-love') {
+      if (selectedShape === 'Bouquet') return 'assets/products/red_moon_bouquet_black.png';
+      if (selectedShape === 'Basket') return 'assets/products/red_moon_basket.png';
+      if (selectedShape === 'Vase') return 'assets/products/red_moon_vase.png';
+      if (selectedShape === 'Hat Box') return 'assets/products/red_moon_hatbox.png';
+      return 'assets/products/red_moon_heart.png';
+    }
+
+    // Elegant Grace options mapping
+    if (product.id === 'elegant-grace') {
+      if (selectedShape === 'Vase') return 'assets/products/elegant_white.png';
+      if (selectedShape === 'Hat Box') return 'assets/products/elegant_white.png';
+    }
+
+    // Default fallback to product's own image
+    return product.img;
+  })();
+
   // Calculate dynamic price reactively
   let currentPrice = 0;
   $: {
@@ -59,7 +106,7 @@
       id: product.id,
       name: product.name,
       price: currentPrice,
-      img: product.img,
+      img: displayImg,
       shape: selectedShape,
       size: selectedSize,
       wrapping: selectedWrapping,
@@ -87,7 +134,7 @@
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div class="thumb-item {activeThumbIdx === 0 ? 'active' : ''}" on:click={() => activeThumbIdx = 0}>
-          <img src="/{product.img}" alt="Thumbnail">
+          <img src="/{displayImg}" alt="Thumbnail">
         </div>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -97,7 +144,7 @@
       </div>
       <div class="gallery-main">
         {#if activeThumbIdx === 0}
-          <img src="/{product.img}" alt={product.name}>
+          <img src="/{displayImg}" alt={product.name}>
         {:else}
           <img src="/assets/products/hero_flowers.svg" alt="Preview alt">
         {/if}
