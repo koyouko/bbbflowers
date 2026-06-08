@@ -22,6 +22,7 @@
   let activeThumbIdx = 0;
 
   let is360Mode = false;
+  let is360VideoMode = false;
   let activeAngleIdx = 0;
   let isDragging = false;
   let startX = 0;
@@ -79,6 +80,31 @@
     }
 
     // Default fallback to product's own image
+    return product.img;
+  })();
+
+  // Resolve dynamic alternative view image for the second thumbnail
+  $: displayImg2 = (() => {
+    if (!product) return '';
+    // Show a different configuration or angle of the product
+    if (product.id === 'red-moon') {
+      return 'assets/products/red_moon_360_side.png';
+    }
+    if (product.id === 'ocean-breeze') {
+      return 'assets/products/ocean_breeze_bouquet.png';
+    }
+    if (product.id === 'pink-romance') {
+      return 'assets/products/red_moon_heart.png';
+    }
+    if (product.id === 'luxury-pink-box') {
+      return 'assets/products/pink_romance.png';
+    }
+    if (product.id === 'heart-of-love') {
+      return 'assets/products/red_moon_bouquet_black.png';
+    }
+    if (product.id === 'elegant-grace') {
+      return 'assets/products/elegant_white.png';
+    }
     return product.img;
   })();
 
@@ -231,7 +257,7 @@
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div class="thumb-item {!is360Mode && activeThumbIdx === 1 ? 'active' : ''}" on:click={() => selectThumb(1)}>
-          <img src="/assets/products/hero_flowers.svg" alt="Thumbnail">
+          <img src="/{displayImg2}" alt="Thumbnail alternative view">
         </div>
         <!-- 360 Thumbnail shortcut -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -244,7 +270,7 @@
       
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div class="gallery-main" 
-           style="cursor: {is360Mode ? 'ew-resize' : 'default'}; position: relative; overflow: hidden; user-select: none;"
+           style="cursor: {is360Mode && !is360VideoMode ? 'ew-resize' : 'default'}; position: relative; overflow: hidden; user-select: none;"
            on:mousedown={handleMouseDown}
            on:mousemove={handleMouseMove}
            on:mouseup={handleMouseUp}
@@ -254,14 +280,44 @@
            on:touchend={handleMouseUp}>
         
         {#if is360Mode}
-          <img src="/{anglesList[activeAngleIdx]}" alt="360 rotation view" style="pointer-events: none; user-drag: none; -webkit-user-drag: none; width: 100%; height: 100%; object-fit: cover;">
-          <div class="rotate-hint-overlay" style="position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; pointer-events: none; animation: pulse 2s infinite;">
-            <i class="fa-solid fa-arrows-left-right"></i> Drag left/right to spin
+          <!-- Video/Spin Switcher Tabs -->
+          <div class="mode-selector" style="position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 4px; background: rgba(0,0,0,0.6); padding: 4px; border-radius: var(--radius-full);">
+            <button type="button" 
+                    style="font-size: 11px; padding: 4px 12px; border-radius: var(--radius-full); border: none; background: {!is360VideoMode ? 'var(--bb-pink)' : 'transparent'}; color: white; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+                    on:click={() => is360VideoMode = false}>
+              <i class="fa-solid fa-arrows-left-right"></i> Spin
+            </button>
+            <button type="button" 
+                    style="font-size: 11px; padding: 4px 12px; border-radius: var(--radius-full); border: none; background: {is360VideoMode ? 'var(--bb-pink)' : 'transparent'}; color: white; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+                    on:click={() => is360VideoMode = true}>
+              <i class="fa-solid fa-play"></i> Video Clip
+            </button>
           </div>
+
+          {#if is360VideoMode}
+            <!-- 360° Looping Video -->
+            <!-- svelte-ignore a11y-media-has-caption -->
+            <video src="https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c054fb4d9d3d3b76cf6c7d1e8c7c91ad&profile_id=139&oauth2_token_id=57447761"
+                   autoplay
+                   loop
+                   muted
+                   playsinline
+                   style="width: 100%; height: 100%; object-fit: cover;">
+            </video>
+            <div class="rotate-hint-overlay" style="position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; pointer-events: none; animation: pulse 2s infinite;">
+              <i class="fa-solid fa-video"></i> 360&deg; Video Loop
+            </div>
+          {:else}
+            <!-- 360° Interactive Drag to Spin -->
+            <img src="/{anglesList[activeAngleIdx]}" alt="360 rotation view" style="pointer-events: none; user-drag: none; -webkit-user-drag: none; width: 100%; height: 100%; object-fit: cover;">
+            <div class="rotate-hint-overlay" style="position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; pointer-events: none; animation: pulse 2s infinite;">
+              <i class="fa-solid fa-arrows-left-right"></i> Drag left/right to spin
+            </div>
+          {/if}
         {:else if activeThumbIdx === 0}
           <img src="/{displayImg}" alt={product.name}>
         {:else}
-          <img src="/assets/products/hero_flowers.svg" alt="Preview alt">
+          <img src="/{displayImg2}" alt="Alternative view">
         {/if}
         
         <!-- svelte-ignore a11y-click-events-have-key-events -->

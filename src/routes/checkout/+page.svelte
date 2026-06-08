@@ -17,11 +17,36 @@
   let activeStep = 1;
   let activePayment = 'credit-card';
   let activeCardTemplate = 'Birthday';
+  let selectedToneIdx = 0;
 
-  const checkoutCardTemplates = {
-    Birthday: "Happy Birthday! Wishing you a day filled with love, joy, and beautiful moments. You are truly special!",
-    Anniversary: "Happy Anniversary! Wishing you endless love, happiness, and beautiful years ahead. Love always.",
-    Romance: "Just wanted to remind you how much you mean to me. You make my world bloom. Thinking of you today!"
+  const greetingTemplates = {
+    Birthday: [
+      { tone: 'Sweet', text: "Dearest {name}, wishing you a day as bright and beautiful as your smile. Happy Birthday!" },
+      { tone: 'Warm', text: "Happy Birthday, {name}! May this year bring you endless joy, peace, and all the success you deserve." },
+      { tone: 'Elegant', text: "Sending you warmest wishes on your birthday, {name}. May your day be as exquisite and wonderful as you are." }
+    ],
+    Anniversary: [
+      { tone: 'Romantic', text: "Happy Anniversary, {name}! Every day with you is a beautiful page in our love story. Cheers to forever." },
+      { tone: 'Deep', text: "Happy Anniversary, {name}! Wishing you endless love, happiness, and beautiful years ahead. Love always." },
+      { tone: 'Short', text: "To another year of sharing sunsets, laughter, and dreams. Happy Anniversary, {name}!" }
+    ],
+    Romance: [
+      { tone: 'Poetic', text: "Just wanted to remind you how much you mean to me, {name}. You make my world bloom. Thinking of you today!" },
+      { tone: 'Sweet', text: "No matter how busy the day gets, you are always on my mind, {name}. Sending you these blooms to make you smile." },
+      { tone: 'Passionate', text: "Dearest {name}, my love for you grows with each passing day. You are my today and all of my tomorrows." }
+    ],
+    "Get Well": [
+      { tone: 'Warm', text: "Dearest {name}, sending you healing thoughts, strength, and warm wishes. Hope you feel better and recover quickly!" },
+      { tone: 'Soothing', text: "Wishing you a speedy recovery, {name}. May these flowers bring a touch of sunshine and cheer to your day." }
+    ],
+    Congrats: [
+      { tone: 'Proud', text: "Huge congratulations, {name}! So proud of your amazing achievement. You deserve all the success!" },
+      { tone: 'Excited', text: "Cheers to your new milestone, {name}! Wishing you the very best in this exciting new chapter." }
+    ],
+    "Thank You": [
+      { tone: 'Grateful', text: "Dearest {name}, thank you for your kindness, generosity, and support. I am incredibly grateful to have you in my life." },
+      { tone: 'Appreciative', text: "Thank you so much, {name}! Your help meant the world to me, and I wanted to send these flowers as a small token of my appreciation." }
+    ]
   };
 
   let fullName = '';
@@ -29,7 +54,7 @@
   let addressDetails = '';
   let deliveryCity = deliveryLocations[0];
   let deliveryDate = new Date().toISOString().split('T')[0];
-  let greetingCardText = checkoutCardTemplates['Birthday'];
+  let greetingCardText = '';
 
   let selectedAddressIdx = '';
 
@@ -66,7 +91,16 @@
 
   function selectCardTemplate(tpl) {
     activeCardTemplate = tpl;
-    greetingCardText = checkoutCardTemplates[tpl];
+    selectedToneIdx = 0;
+  }
+
+  $: {
+    const templates = greetingTemplates[activeCardTemplate] || [];
+    const item = templates[selectedToneIdx] || templates[0];
+    if (item) {
+      const namePlaceholder = fullName.trim() || 'Recipient';
+      greetingCardText = item.text.replace(/{name}/g, namePlaceholder);
+    }
   }
 
   function nextToCard() {
@@ -219,11 +253,38 @@
               <p style="font-size: 13px; color: var(--bb-text-light); margin-bottom: 16px;">We will print this message on a premium card and tuck it inside the wrapping paper.</p>
               
               <div class="greeting-card-writer">
-                <div class="card-templates">
-                  <button type="button" class="template-btn {activeCardTemplate === 'Birthday' ? 'active' : ''}" on:click={() => selectCardTemplate('Birthday')}>🎂 Birthday</button>
-                  <button type="button" class="template-btn {activeCardTemplate === 'Anniversary' ? 'active' : ''}" on:click={() => selectCardTemplate('Anniversary')}>💍 Anniversary</button>
-                  <button type="button" class="template-btn {activeCardTemplate === 'Romance' ? 'active' : ''}" on:click={() => selectCardTemplate('Romance')}>❤️ Romance</button>
+                <!-- Occasion Categories -->
+                <div class="card-templates" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                  {#each Object.keys(greetingTemplates) as occasion}
+                    <button type="button" 
+                            class="template-btn {activeCardTemplate === occasion ? 'active' : ''}" 
+                            on:click={() => selectCardTemplate(occasion)}>
+                      {#if occasion === 'Birthday'}🎂
+                      {:else if occasion === 'Anniversary'}💍
+                      {:else if occasion === 'Romance'}❤️
+                      {:else if occasion === 'Get Well'}🩹
+                      {:else if occasion === 'Congrats'}🎓
+                      {:else if occasion === 'Thank You'}🙏{/if}
+                      {occasion}
+                    </button>
+                  {/each}
                 </div>
+
+                <!-- Tone Selection -->
+                <div class="tone-selector" style="display: flex; gap: 10px; margin-bottom: 16px; align-items: center;">
+                  <span style="font-size: 12px; font-weight: 700; color: var(--bb-text-light); text-transform: uppercase;">Message Tone:</span>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    {#each greetingTemplates[activeCardTemplate] as item, idx}
+                      <button type="button" 
+                              class="tone-btn" 
+                              style="font-size: 12px; padding: 4px 12px; border-radius: var(--radius-full); border: 1px solid {selectedToneIdx === idx ? 'var(--bb-pink)' : 'var(--bb-card-border)'}; background-color: {selectedToneIdx === idx ? 'var(--bb-pink-bg)' : '#FFFFFF'}; color: {selectedToneIdx === idx ? 'var(--bb-pink)' : 'var(--bb-text-main)'}; font-weight: 600; cursor: pointer;"
+                              on:click={() => { selectedToneIdx = idx; }}>
+                        {item.tone}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+
                 <textarea class="greeting-textarea" bind:value={greetingCardText} placeholder="Write your personal message here..."></textarea>
               </div>
 

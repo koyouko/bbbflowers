@@ -65,7 +65,7 @@
       </div>
     </div>
     <div class="hero-image-wrapper">
-      <img src="/assets/products/hero_flowers.svg" class="hero-image" alt="Luxury Flower Bouquet">
+      <img src="/assets/products/hero_flowers.png" class="hero-image" alt="Luxury Flower Bouquet">
       
       <!-- Delivery Checker Card -->
       <div class="delivery-checker">
@@ -194,7 +194,7 @@
     <div class="instagram-grid">
       {#each [1, 2, 3, 4, 1, 2, 3, 4] as n}
         <div class="instagram-item">
-          <img src="/assets/products/red_moon.svg" alt="Instagram bouquet">
+          <img src="/assets/products/red_moon_bouquet_black.png" alt="Instagram bouquet">
           <div class="instagram-overlay"><i class="fa-brands fa-instagram" style="font-size: 24px;"></i></div>
         </div>
       {/each}
