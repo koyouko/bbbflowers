@@ -21,6 +21,11 @@
 
   let activeThumbIdx = 0;
 
+  let is360Mode = false;
+  let activeAngleIdx = 0;
+  let isDragging = false;
+  let startX = 0;
+
   // Resolve dynamic preview image based on user configuration selection
   $: displayImg = (() => {
     if (!product) return '';
@@ -38,6 +43,15 @@
       if (selectedWrapping === 'Pink') return 'assets/products/red_moon_bouquet_pink.png';
       if (selectedWrapping === 'White') return 'assets/products/red_moon_bouquet_white.png';
       if (selectedWrapping === 'Gold') return 'assets/products/red_moon_bouquet_gold.png';
+    }
+
+    // Ocean Breeze options mapping
+    if (product.id === 'ocean-breeze') {
+      if (selectedShape === 'Heart') return 'assets/products/ocean_breeze_heart.png';
+      if (selectedShape === 'Basket') return 'assets/products/ocean_breeze_basket.png';
+      if (selectedShape === 'Hat Box') return 'assets/products/ocean_breeze_hatbox.png';
+      if (selectedShape === 'Bouquet') return 'assets/products/ocean_breeze_bouquet.png';
+      return 'assets/products/ocean_breeze.png';
     }
 
     // Pink Romance options mapping
@@ -67,6 +81,84 @@
     // Default fallback to product's own image
     return product.img;
   })();
+
+  // Resolve dynamic rotation frames list based on product
+  $: anglesList = (() => {
+    if (!product) return [];
+    if (product.id === 'red-moon') {
+      return [
+        'assets/products/red_moon_bouquet_black.png',
+        'assets/products/red_moon_360_side.png',
+        'assets/products/red_moon_360_back.png',
+        'assets/products/red_moon_360_top.png'
+      ];
+    }
+    if (product.id === 'ocean-breeze') {
+      return [
+        'assets/products/ocean_breeze.png',
+        'assets/products/ocean_breeze_bouquet.png',
+        'assets/products/ocean_breeze_basket.png',
+        'assets/products/ocean_breeze_hatbox.png',
+        'assets/products/ocean_breeze_heart.png'
+      ];
+    }
+    // Fallback: spin shape configurations for other items
+    const defaultImg = product.img;
+    let heartImg = 'assets/products/red_moon_heart.png';
+    let basketImg = 'assets/products/garden_delight.png';
+    let hatboxImg = 'assets/products/luxury_pink_box.png';
+
+    if (product.id === 'pink-romance' || product.id === 'luxury-pink-box') {
+      return [defaultImg, heartImg, basketImg, hatboxImg];
+    }
+    return [defaultImg, defaultImg, defaultImg, defaultImg];
+  })();
+
+  // Mouse/Touch controls for 360 view dragging
+  function handleMouseDown(e) {
+    if (!is360Mode) return;
+    isDragging = true;
+    startX = e.clientX;
+  }
+
+  function handleMouseMove(e) {
+    if (!isDragging) return;
+    const diffX = e.clientX - startX;
+    const stepThreshold = 40;
+    if (Math.abs(diffX) > stepThreshold) {
+      const step = diffX > 0 ? 1 : -1;
+      const count = anglesList.length;
+      activeAngleIdx = (activeAngleIdx + step + count) % count;
+      startX = e.clientX;
+    }
+  }
+
+  function handleMouseUp() {
+    isDragging = false;
+  }
+
+  function handleTouchStart(e) {
+    if (!is360Mode) return;
+    isDragging = true;
+    startX = e.touches[0].clientX;
+  }
+
+  function handleTouchMove(e) {
+    if (!isDragging) return;
+    const diffX = e.touches[0].clientX - startX;
+    const stepThreshold = 30;
+    if (Math.abs(diffX) > stepThreshold) {
+      const step = diffX > 0 ? 1 : -1;
+      const count = anglesList.length;
+      activeAngleIdx = (activeAngleIdx + step + count) % count;
+      startX = e.touches[0].clientX;
+    }
+  }
+
+  function selectThumb(idx) {
+    is360Mode = false;
+    activeThumbIdx = idx;
+  }
 
   // Calculate dynamic price reactively
   let currentPrice = 0;
@@ -133,22 +225,54 @@
       <div class="gallery-thumbs">
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div class="thumb-item {activeThumbIdx === 0 ? 'active' : ''}" on:click={() => activeThumbIdx = 0}>
+        <div class="thumb-item {!is360Mode && activeThumbIdx === 0 ? 'active' : ''}" on:click={() => selectThumb(0)}>
           <img src="/{displayImg}" alt="Thumbnail">
         </div>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div class="thumb-item {activeThumbIdx === 1 ? 'active' : ''}" on:click={() => activeThumbIdx = 1}>
+        <div class="thumb-item {!is360Mode && activeThumbIdx === 1 ? 'active' : ''}" on:click={() => selectThumb(1)}>
           <img src="/assets/products/hero_flowers.svg" alt="Thumbnail">
         </div>
+        <!-- 360 Thumbnail shortcut -->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div class="thumb-item {is360Mode ? 'active' : ''}" on:click={() => { is360Mode = true; activeAngleIdx = 0; }} style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fce4ec; border: 1px dashed var(--bb-pink); border-radius: 8px;">
+          <i class="fa-solid fa-rotate" style="font-size: 20px; color: var(--bb-pink);"></i>
+          <span style="font-size: 10px; font-weight: 700; color: var(--bb-pink); margin-top: 4px;">360&deg; View</span>
+        </div>
       </div>
-      <div class="gallery-main">
-        {#if activeThumbIdx === 0}
+      
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div class="gallery-main" 
+           style="cursor: {is360Mode ? 'ew-resize' : 'default'}; position: relative; overflow: hidden; user-select: none;"
+           on:mousedown={handleMouseDown}
+           on:mousemove={handleMouseMove}
+           on:mouseup={handleMouseUp}
+           on:mouseleave={handleMouseUp}
+           on:touchstart={handleTouchStart}
+           on:touchmove={handleTouchMove}
+           on:touchend={handleMouseUp}>
+        
+        {#if is360Mode}
+          <img src="/{anglesList[activeAngleIdx]}" alt="360 rotation view" style="pointer-events: none; user-drag: none; -webkit-user-drag: none; width: 100%; height: 100%; object-fit: cover;">
+          <div class="rotate-hint-overlay" style="position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; pointer-events: none; animation: pulse 2s infinite;">
+            <i class="fa-solid fa-arrows-left-right"></i> Drag left/right to spin
+          </div>
+        {:else if activeThumbIdx === 0}
           <img src="/{displayImg}" alt={product.name}>
         {:else}
           <img src="/assets/products/hero_flowers.svg" alt="Preview alt">
         {/if}
-        <div class="badge-3d-view"><i class="fa-solid fa-rotate"></i> 360&deg; View</div>
+        
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div class="badge-3d-view {is360Mode ? 'active' : ''}" on:click|stopPropagation={() => { is360Mode = !is360Mode; activeAngleIdx = 0; }} style="cursor: pointer; z-index: 10;">
+          {#if is360Mode}
+            <i class="fa-solid fa-circle-xmark"></i> Exit 360&deg;
+          {:else}
+            <i class="fa-solid fa-rotate"></i> 360&deg; View
+          {/if}
+        </div>
       </div>
     </div>
 
