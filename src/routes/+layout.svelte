@@ -74,6 +74,7 @@
         <li><a href="/" class="nav-link">Home</a></li>
         <li><a href="/shop" class="nav-link">Shop by Collections</a></li>
         <li><a href="/dashboard/dashboard" class="nav-link">BB Moments</a></li>
+        <li><a href="/blog" class="nav-link">Blog</a></li>
         <li><a href="/about" class="nav-link">About Us</a></li>
         <li><a href="/contact" class="nav-link">Contact Us</a></li>
       </ul>

@@ -1,3 +1,42 @@
+<svelte:head>
+  <title>Blooming Blossom - Luxury Flower Delivery in Dubai & UAE</title>
+  <meta name="description" content="Send premium fresh roses, velvet flower boxes, and customized bouquets with free same-day delivery across Dubai and the UAE. Order online from Blooming Blossom.">
+  <meta name="keywords" content="flower delivery dubai, send flowers uae, luxury roses dubai, same-day flower delivery dubai, florist near me dubai">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Florist",
+      "name": "Blooming Blossom Flowers & Gifts",
+      "image": "https://webapp-two-kappa-11.vercel.app/assets/products/hero_flowers.png",
+      "@id": "https://webapp-two-kappa-11.vercel.app/#store",
+      "url": "https://webapp-two-kappa-11.vercel.app/",
+      "telephone": "+97140000000",
+      "priceRange": "AED 150 - AED 1000",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Downtown Dubai, Sheikh Mohammed bin Rashid Blvd",
+        "addressLocality": "Dubai",
+        "addressRegion": "Dubai",
+        "postalCode": "00000",
+        "addressCountry": "AE"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.2048,
+        "longitude": 55.2708
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+        ],
+        "opens": "09:00",
+        "closes": "22:00"
+      }
+    }
+  </script>
+</svelte:head>
+
 <script>
   import { bouquetsList, occasionsList, reviewsList, deliveryLocations } from '$lib/data.js';
   import { wishlist } from '$lib/stores/dashboard.js';
